@@ -7,6 +7,7 @@ constructed when this module is loaded and is not deferred until a function is
 called.
 """
 
+import asyncio
 from importlib.metadata import metadata
 
 from fastapi import FastAPI
@@ -17,6 +18,7 @@ from safir.middleware.x_forwarded import XForwardedMiddleware
 from .config import config
 from .handlers.external import external_router
 from .handlers.internal import internal_router
+from .nginx_tailer import tail_nginx_log
 
 __all__ = ["app", "config"]
 
@@ -47,6 +49,7 @@ app.mount(f"/{config.name}", _subapp)
 @app.on_event("startup")
 async def startup_event() -> None:
     app.add_middleware(XForwardedMiddleware)
+    asyncio.create_task(tail_nginx_log())
 
 
 @app.on_event("shutdown")
