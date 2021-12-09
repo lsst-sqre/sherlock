@@ -1,6 +1,7 @@
 import fileinput
 import logging
 import re
+from typing import Generator, Optional
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -28,7 +29,7 @@ NGINX_LOG_REGEXP = (
 
 
 class NginxRequestStatistics:
-    def __init__(self, data):
+    def __init__(self, data: dict) -> None:
         """Initialize all the fields.
 
         Note: the order of these fields is also the order in the dataframe."""
@@ -50,7 +51,7 @@ class NginxRequestStatistics:
         self.remote_addr = data["remote_addr"]
         self.user_agent = data["user_agent"]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"Request ID: {self.request_id}\n"
             f"Remote address: {self.remote_addr}\n"
@@ -65,14 +66,16 @@ class NginxRequestStatistics:
 
 
 class NginxLogParser:
-    def __init__(self):
+    def __init__(self) -> None:
         self.parser = re.compile(NGINX_LOG_REGEXP)
 
-    def parse_stdin(self):
+    def parse_stdin(
+        self,
+    ) -> Generator[Optional[NginxRequestStatistics], None, None]:
         for line in fileinput.input():
             yield self.parse(line)
 
-    def parse(self, line):
+    def parse(self, line: str) -> Optional[NginxRequestStatistics]:
         matches = self.parser.match(line)
 
         if not matches:

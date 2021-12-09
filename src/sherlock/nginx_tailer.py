@@ -16,7 +16,7 @@ total_stats = []
 RESTART_SECONDS = 60
 
 
-async def tail_nginx_log():
+async def tail_nginx_log() -> None:
     while True:
         try:
             config.load_incluster_config()
