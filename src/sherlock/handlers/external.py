@@ -1,14 +1,13 @@
 """Handlers for the app's external root, ``/sherlock/``."""
 
-from fastapi import APIRouter, Depends
+import pandas as pd
+from fastapi import APIRouter, Depends, Response
 from safir.dependencies.logger import logger_dependency
-from safir.metadata import get_metadata
 from structlog.stdlib import BoundLogger
 
-from ..config import config
-from ..models import Index
+from ..nginx_tailer import total_stats
 
-__all__ = ["get_index", "external_router"]
+__all__ = ["get_all", "get_errors", "get_laggers", "external_router"]
 
 external_router = APIRouter()
 """FastAPI router for all external handlers."""
@@ -17,34 +16,41 @@ external_router = APIRouter()
 @external_router.get(
     "/",
     description=(
-        "Document the top-level API here. By default it only returns metadata"
-        " about the application."
+        "Get all the stats in memory in a JSON file that can be parsed"
     ),
-    response_model=Index,
-    response_model_exclude_none=True,
-    summary="Application metadata",
+    summary="All recent request statistics",
 )
-async def get_index(
+async def get_all(
     logger: BoundLogger = Depends(logger_dependency),
-) -> Index:
-    """GET ``/sherlock/`` (the app's external root).
+) -> Response:
+    """Get all the recent transactions in memory."""
+    df = pd.DataFrame([vars(i) for i in total_stats])
+    return Response(content=df.to_html())
 
-    Customize this handler to return whatever the top-level resource of your
-    application should return. For example, consider listing key API URLs.
-    When doing so, also change or customize the response model in
-    `sherlock.models.Index`.
 
-    By convention, the root of the external API includes a field called
-    ``metadata`` that provides the same Safir-generated metadata as the
-    internal root endpoint.
-    """
-    # There is no need to log simple requests since uvicorn will do this
-    # automatically, but this is included as an example of how to use the
-    # logger for more complex logging.
-    logger.info("Request for application metadata")
+@external_router.get(
+    "/errors",
+    description=("Get all the requests that returned a 5xx"),
+    summary="All recent 5xx requests",
+)
+async def get_errors(
+    logger: BoundLogger = Depends(logger_dependency),
+) -> Response:
+    """Get all the recent errors in memory."""
+    df = pd.DataFrame([vars(i) for i in total_stats])
+    errors = df[df["status_code"] >= 500]
+    return Response(content=errors.to_html())
 
-    metadata = get_metadata(
-        package_name="sherlock",
-        application_name=config.name,
-    )
-    return Index(metadata=metadata)
+
+@external_router.get(
+    "/laggers",
+    description=("Get all the recent requests that took a long time"),
+    summary="All recent requests that took a long time",
+)
+async def get_laggers(
+    logger: BoundLogger = Depends(logger_dependency),
+) -> Response:
+    """Get all the recent errors in memory."""
+    df = pd.DataFrame([vars(i) for i in total_stats])
+    laggers = df[df["request_time"] >= 10]
+    return Response(content=laggers.to_html())

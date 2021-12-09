@@ -11,4 +11,6 @@ starlette
 uvicorn[standard]
 
 # Other dependencies.
+kubernetes_asyncio
+pandas
 safir
