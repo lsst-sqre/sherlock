@@ -68,7 +68,7 @@ async def get_laggers(
 
 
 @external_router.get(
-    "/service",
+    "/service/",
     description=("All the services that have a request logged"),
     summary="All the services that have a request logged",
 )
@@ -103,8 +103,8 @@ async def get_service_requests(
 
 @external_router.get(
     "/service/{service_name}/errors",
-    description=("All the requests for a service"),
-    summary="All the requests for a service",
+    description=("All the failed requests for a service"),
+    summary="All the failed requests for a service",
 )
 async def get_service_errors(
     service_name: str,
