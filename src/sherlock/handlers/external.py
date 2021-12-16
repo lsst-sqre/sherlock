@@ -16,6 +16,7 @@ __all__ = [
     "get_services",
     "get_service_errors",
     "get_service_laggers",
+    "get_service_stats",
     "external_router",
 ]
 
@@ -144,3 +145,23 @@ async def get_service_laggers(
         (df["service_name"] == service_name) & (df["request_time"] >= time)
     ]
     return Response(content=laggers.to_html())
+
+
+@external_router.get(
+    "/service/{service_name}/stats",
+    description=("Statistical breakdown of service requests"),
+    summary="Statistical breakdown of service requests",
+)
+async def get_service_stats(
+    service_name: str,
+    logger: BoundLogger = Depends(logger_dependency),
+) -> Response:
+    """Get all the recent services in memory."""
+    df = pd.DataFrame([vars(i) for i in total_stats])
+    services = df["service_name"].unique().tolist()
+
+    if service_name not in services:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    service_logs = df[df["service_name"] == service_name]
+    return Response(content=service_logs.describe().to_html())
