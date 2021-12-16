@@ -12,6 +12,7 @@ logger = structlog.get_logger(__name__)
 
 
 total_stats = []
+request_ids = set()
 
 RESTART_SECONDS = 60
 
@@ -40,8 +41,17 @@ async def tail_nginx_log() -> None:
                     stats = parser.parse(line.decode("utf-8"))
 
                     if stats:
-                        logger.info(stats)
-                        total_stats.append(stats)
+                        logger.debug(stats)
+                        if stats.request_id not in request_ids:
+                            total_stats.append(stats)
+                            request_ids.add(stats.request_id)
+                        else:
+                            # If the connection reading the logs gets reset,
+                            # we want to go over all the previous lines, but
+                            # not have any duplicates.
+                            logger.debug(
+                                f"Tossing duplicate line {stats.request_id}"
+                            )
         except Exception as e:
             logger.exception(e)
             logger.error(
