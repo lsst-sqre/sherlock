@@ -33,7 +33,12 @@ async def tail_nginx_log() -> None:
             )
 
             while True:
-                line = await resp.content.readline()
+                try:
+                    line = await resp.content.readline()
+                except asyncio.TimeoutError:
+                    # apparently readline() times out after six minutes
+                    # ...so if we didn't get anything, just do it again.
+                    continue
                 if not line:
                     logger.error("No line retrieved")
                     break
