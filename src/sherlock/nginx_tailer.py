@@ -36,9 +36,11 @@ async def tail_nginx_log() -> None:
                 # apparently readline() times out after six minutes
                 # ...so you'd think you could just catch that error and
                 # retry, but then you get intermittent pod-not-ready
-                # errors...
-                # ...so let's try a slightly smaller controlled timeout and
-                # see if that helps any.
+                # errors
+                # ...so let's try a slightly smaller controlled timeout
+                # and see if that helps any.
+                #
+                # Spoiler: it did.
                 try:
                     line = await asyncio.wait_for(resp.content.readline(), 300)
                 except asyncio.TimeoutError:
