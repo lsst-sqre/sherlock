@@ -33,18 +33,7 @@ async def tail_nginx_log() -> None:
             )
 
             while True:
-                # apparently readline() times out after six minutes
-                # ...so you'd think you could just catch that error and
-                # retry, but then you get intermittent pod-not-ready
-                # errors
-                # ...so let's try a slightly smaller controlled timeout
-                # and see if that helps any.
-                #
-                # Spoiler: it did.
-                try:
-                    line = await asyncio.wait_for(resp.content.readline(), 300)
-                except asyncio.TimeoutError:
-                    continue
+                line = await asyncio.wait_for(resp.content.readline(), 300)
                 if not line:
                     logger.error("No line retrieved")
                     break
@@ -63,6 +52,8 @@ async def tail_nginx_log() -> None:
                             logger.debug(
                                 f"Tossing duplicate line {stats.request_id}"
                             )
+        except asyncio.TimeoutError:
+            logger.info("Timeout occurred; restarting.")
         except Exception as e:
             logger.exception(e)
             logger.error(
