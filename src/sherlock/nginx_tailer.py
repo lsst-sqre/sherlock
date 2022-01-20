@@ -33,7 +33,7 @@ async def tail_nginx_log() -> None:
             )
 
             while True:
-                line = await resp.content.readline()
+                line = await asyncio.wait_for(resp.content.readline(), 300)
                 if not line:
                     logger.error("No line retrieved")
                     break
@@ -52,6 +52,8 @@ async def tail_nginx_log() -> None:
                             logger.debug(
                                 f"Tossing duplicate line {stats.request_id}"
                             )
+        except asyncio.TimeoutError:
+            logger.info("Timeout occurred; restarting.")
         except Exception as e:
             logger.exception(e)
             logger.error(
