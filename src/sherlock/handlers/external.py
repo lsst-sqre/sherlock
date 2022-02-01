@@ -17,6 +17,7 @@ __all__ = [
     "get_service_errors",
     "get_service_laggers",
     "get_service_stats",
+    "get_status",
     "external_router",
 ]
 
@@ -165,3 +166,38 @@ async def get_service_stats(
 
     service_logs = df[df["service_name"] == service_name]
     return Response(content=service_logs.describe().to_html())
+
+
+@external_router.get(
+    "/status",
+    description=("Status of all services"),
+    summary="Status of all services",
+)
+async def get_status(
+    logger: BoundLogger = Depends(logger_dependency),
+) -> Response:
+    """Get all the recent services in memory."""
+    df = pd.DataFrame([vars(i) for i in total_stats])
+    services = df["service_name"].unique().tolist()
+
+    status = []
+
+    for service in services:
+        errors = df[
+            (df["service_name"] == service) & (df["status_code"] >= 500)
+        ]
+
+        service_status = "normal"
+
+        if errors.size > 0:
+            service_status = "error"
+
+        status.append(
+            {
+                "name": service,
+                "errors": errors.to_dict(),
+                "status": service_status,
+            }
+        )
+
+    return Response(content=json.dumps(status, indent=4, sort_keys=True))
