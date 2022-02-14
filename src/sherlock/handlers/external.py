@@ -37,7 +37,7 @@ async def get_all(
 ) -> Response:
     """Get all the recent transactions in memory."""
     df = pd.DataFrame([vars(i) for i in total_stats])
-    return Response(content=df.to_html())
+    return Response(content=df.to_json(orient="records"))
 
 
 @external_router.get(
@@ -51,7 +51,7 @@ async def get_errors(
     """Get all the recent errors in memory."""
     df = pd.DataFrame([vars(i) for i in total_stats])
     errors = df[df["status_code"] >= 500]
-    return Response(content=errors.to_html())
+    return Response(content=errors.to_json(orient="records"))
 
 
 @external_router.get(
@@ -66,7 +66,7 @@ async def get_laggers(
     """Get all the recent errors in memory."""
     df = pd.DataFrame([vars(i) for i in total_stats])
     laggers = df[df["request_time"] >= time]
-    return Response(content=laggers.to_html())
+    return Response(content=laggers.to_json(orient="records"))
 
 
 @external_router.get(
@@ -100,7 +100,7 @@ async def get_service_requests(
         raise HTTPException(status_code=404, detail="Item not found")
 
     service_logs = df[df["service_name"] == service_name]
-    return Response(content=service_logs.to_html())
+    return Response(content=service_logs.to_json(orient="records"))
 
 
 @external_router.get(
@@ -122,7 +122,7 @@ async def get_service_errors(
     errors = df[
         (df["service_name"] == service_name) & (df["status_code"] >= 500)
     ]
-    return Response(content=errors.to_html())
+    return Response(content=errors.to_json(orient="records"))
 
 
 @external_router.get(
@@ -145,7 +145,7 @@ async def get_service_laggers(
     laggers = df[
         (df["service_name"] == service_name) & (df["request_time"] >= time)
     ]
-    return Response(content=laggers.to_html())
+    return Response(content=laggers.to_json(orient="records"))
 
 
 @external_router.get(
@@ -165,7 +165,7 @@ async def get_service_stats(
         raise HTTPException(status_code=404, detail="Item not found")
 
     service_logs = df[df["service_name"] == service_name]
-    return Response(content=service_logs.describe().to_html())
+    return Response(content=service_logs.to_json(orient="records"))
 
 
 @external_router.get(
@@ -195,7 +195,7 @@ async def get_status(
         status.append(
             {
                 "name": service,
-                "errors": errors.to_dict(),
+                "errors": errors.to_dict(orient="records"),
                 "status": service_status,
             }
         )
