@@ -20,6 +20,7 @@ from .config import config
 from .handlers.external import external_router
 from .handlers.internal import internal_router
 from .nginx_tailer import tail_nginx_log
+from .publish_status import publish_status
 
 __all__ = ["app", "config"]
 
@@ -60,6 +61,7 @@ async def startup_event() -> None:
     )
 
     asyncio.create_task(tail_nginx_log())
+    asyncio.create_task(publish_status())
 
 
 @app.on_event("shutdown")

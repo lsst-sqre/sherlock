@@ -1,6 +1,7 @@
 """Handlers for the app's external root, ``/sherlock/``."""
 
 import json
+from typing import Any, Dict, List
 
 import pandas as pd
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -18,6 +19,7 @@ __all__ = [
     "get_service_laggers",
     "get_service_stats",
     "get_status",
+    "status_data",
     "external_router",
 ]
 
@@ -168,15 +170,8 @@ async def get_service_stats(
     return Response(content=service_logs.to_json(orient="records"))
 
 
-@external_router.get(
-    "/status",
-    description=("Status of all services"),
-    summary="Status of all services",
-)
-async def get_status(
-    logger: BoundLogger = Depends(logger_dependency),
-) -> Response:
-    """Get all the recent services in memory."""
+async def status_data() -> List[Dict[str, Any]]:
+    """Get the status data as a dict."""
     df = pd.DataFrame([vars(i) for i in total_stats])
     services = df["service_name"].unique().tolist()
 
@@ -200,4 +195,17 @@ async def get_status(
             }
         )
 
-    return Response(content=json.dumps(status, indent=4, sort_keys=True))
+    return status
+
+
+@external_router.get(
+    "/status",
+    description=("Status of all services"),
+    summary="Status of all services",
+)
+async def get_status(
+    logger: BoundLogger = Depends(logger_dependency),
+) -> Response:
+    """Get the current status data."""
+    data = await status_data()
+    return Response(content=json.dumps(data, indent=4, sort_keys=True))
