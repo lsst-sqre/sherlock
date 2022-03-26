@@ -36,6 +36,13 @@ class Configuration:
     Set with the ``SAFIR_LOG_LEVEL`` environment variable.
     """
 
+    publish_url: str = os.getenv("PUBLISH_URL", "")
+    """The url to publish the status to.
+
+    This will allow for a dashboard to get updates
+    pushed to it.
+    """
+
 
 config = Configuration()
 """Configuration for sherlock."""
