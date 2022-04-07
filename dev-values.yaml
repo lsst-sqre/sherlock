@@ -1,6 +1,11 @@
 ingress:
   host: "minikube.lsst.codes"
+  gafaelfawrAuthQuery: "scope=exec:admin"
 
 image:
   tag: dev
   pullPolicy: Never
+
+publish_url: "https://httpbin.org/put"
+
+vaultSecretsPath: "secret/k8s_operator/minikube.lsst.codes/sherlock"

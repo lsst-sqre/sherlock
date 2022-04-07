@@ -12,17 +12,21 @@ logger = structlog.get_logger(__name__)
 
 
 async def publish_status() -> None:
+    c = Configuration()
     client = httpx.AsyncClient()
-    publish_url = Configuration().publish_url
 
-    if not publish_url:
+    if not c.publish_url:
         logger.info("Not publishing status")
         return
 
     while True:
         try:
             data = await status_data()
-            response = await client.put(publish_url, json=data)
+            response = await client.put(
+                c.publish_url,
+                headers={"Authorization": f"digest {c.publish_key}"},
+                json=data,
+            )
             response.raise_for_status()
             logger.info(response)
 
