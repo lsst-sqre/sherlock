@@ -43,6 +43,9 @@ class Configuration:
     pushed to it.
     """
 
+    publish_key: str = os.getenv("PUBLISH_KEY", "")
+    """The key to use for publishing the URL."""
+
 
 config = Configuration()
 """Configuration for sherlock."""
