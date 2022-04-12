@@ -24,7 +24,7 @@ async def publish_status() -> None:
             data = await status_data()
             response = await client.put(
                 c.publish_url,
-                headers={"Authorization": f"digest {c.publish_key}"},
+                headers={"Authorization": f"token {c.publish_key}"},
                 json=data,
             )
             response.raise_for_status()
