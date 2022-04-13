@@ -11,7 +11,6 @@ import asyncio
 from importlib.metadata import metadata
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from safir.dependencies.http_client import http_client_dependency
 from safir.logging import configure_logging
 from safir.middleware.x_forwarded import XForwardedMiddleware
@@ -51,15 +50,6 @@ app.mount(f"/{config.name}", _subapp)
 @app.on_event("startup")
 async def startup_event() -> None:
     app.add_middleware(XForwardedMiddleware)
-
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["http://localhost:3000", "https://status.lsst.codes"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
     asyncio.create_task(tail_nginx_log())
     asyncio.create_task(publish_status())
 
