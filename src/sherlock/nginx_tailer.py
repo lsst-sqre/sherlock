@@ -1,4 +1,5 @@
 import asyncio
+from collections import deque
 
 import structlog
 from kubernetes_asyncio import client, config
@@ -11,9 +12,10 @@ NGINX_NAMESPACE = "ingress-nginx"
 logger = structlog.get_logger(__name__)
 
 
-total_stats = []
+total_stats = deque()
 request_ids = set()
 
+CACHE_SIZE = 1000000
 RESTART_SECONDS = 60
 
 
@@ -42,6 +44,11 @@ async def tail_nginx_log() -> None:
 
                     if stats:
                         logger.debug(stats)
+
+                        if len(total_stats) > CACHE_SIZE:
+                            item = total_stats.popleft()
+                            request_ids.remove(item.request_id)
+
                         if stats.request_id not in request_ids:
                             total_stats.append(stats)
                             request_ids.add(stats.request_id)

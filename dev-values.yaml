@@ -9,3 +9,11 @@ image:
 publish_url: "https://httpbin.org/put"
 
 vaultSecretsPath: "secret/k8s_operator/minikube.lsst.codes/sherlock"
+
+resources:
+  requests:
+    cpu: 2.0
+    memory: "2G"
+  limits:
+    cpu: 4.0
+    memory: "4G"
