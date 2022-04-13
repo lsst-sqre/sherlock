@@ -1,19 +1,20 @@
 import asyncio
 from collections import deque
+from typing import Deque, Set
 
 import structlog
 from kubernetes_asyncio import client, config
 from kubernetes_asyncio.client.api_client import ApiClient
 
-from .nginx_parser import NginxLogParser
+from .nginx_parser import NginxLogParser, NginxRequestStatistics
 
 NGINX_NAMESPACE = "ingress-nginx"
 
 logger = structlog.get_logger(__name__)
 
 
-total_stats = deque()
-request_ids = set()
+total_stats: Deque[NginxRequestStatistics] = deque()
+request_ids: Set[str] = set()
 
 CACHE_SIZE = 1000000
 RESTART_SECONDS = 60
