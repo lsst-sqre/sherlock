@@ -8,7 +8,7 @@ called.
 """
 
 import asyncio
-from importlib.metadata import metadata
+from importlib.metadata import metadata, version
 
 from fastapi import FastAPI
 from safir.dependencies.http_client import http_client_dependency
@@ -30,21 +30,19 @@ configure_logging(
     name=config.logger_name,
 )
 
-app = FastAPI()
+app = FastAPI(
+    title="sherlock",
+    description=metadata("sherlock")["Summary"],
+    version=version("sherlock"),
+    openapi_url=f"/{config.name}/openapi.json",
+    docs_url=f"/{config.name}/docs",
+    redoc_url=f"/{config.name}/redoc",
+)
 """The main FastAPI application for sherlock."""
 
-# Define the external routes in a subapp so that it will serve its own OpenAPI
-# interface definition and documentation URLs under the external URL.
-_subapp = FastAPI(
-    title="sherlock",
-    description=metadata("sherlock").get("Summary", ""),
-    version=metadata("sherlock").get("Version", "0.0.0"),
-)
-_subapp.include_router(external_router)
-
-# Attach the internal routes and subapp to the main application.
+# Attach the routers.
 app.include_router(internal_router)
-app.mount(f"/{config.name}", _subapp)
+app.include_router(external_router, prefix=f"/{config.name}")
 
 
 @app.on_event("startup")
