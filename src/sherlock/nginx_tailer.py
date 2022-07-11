@@ -46,6 +46,11 @@ async def tail_nginx_log() -> None:
                     if stats:
                         logger.debug(stats)
 
+                        if stats.status_code >= 500:
+                            logger.error(
+                                f"ERR: {stats.status_code} on request {stats}"
+                            )
+
                         if len(total_stats) > CACHE_SIZE:
                             item = total_stats.popleft()
                             request_ids.remove(item.request_id)
