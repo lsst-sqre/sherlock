@@ -79,7 +79,7 @@ class NginxLogParser:
         matches = self.parser.match(line)
 
         if not matches:
-            logging.warning(f"[{line}] doesn't match pattern")
+            logging.info(f"[{line}] doesn't match pattern")
             return None
         else:
             stats = NginxRequestStatistics(matches.groupdict())
