@@ -44,10 +44,12 @@ app = FastAPI(
 app.include_router(internal_router)
 app.include_router(external_router, prefix=f"/{config.name}")
 
+# Add the middleware.
+app.add_middleware(XForwardedMiddleware)
+
 
 @app.on_event("startup")
 async def startup_event() -> None:
-    app.add_middleware(XForwardedMiddleware)
     asyncio.create_task(tail_nginx_log())
     asyncio.create_task(publish_status())
 
