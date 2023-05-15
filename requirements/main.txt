@@ -624,9 +624,9 @@ pydantic==1.10.7 \
     # via
     #   fastapi
     #   safir
-pyjwt[crypto]==2.6.0 \
-    --hash=sha256:69285c7e31fc44f68a1feb309e948e0df53259d579295e6cfe2b1792329f05fd \
-    --hash=sha256:d83c3d892a77bbb74d3e1a2cfa90afaadb60945205d1095d9221f04466f64c14
+pyjwt[crypto]==2.7.0 \
+    --hash=sha256:ba2b425b15ad5ef12f200dc67dd56af4e26de2331f965c5439994dad075876e1 \
+    --hash=sha256:bd6ca4a3c4285c1a2d4349e5a035fdf8fb94e04ccd0fcbe6ba289dae9cc3e074
     # via gidgethub
 python-dateutil==2.8.2 \
     --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \
@@ -686,9 +686,9 @@ pyyaml==6.0 \
     # via
     #   kubernetes-asyncio
     #   uvicorn
-safir==4.0.0 \
-    --hash=sha256:9d883c2fbd30b2fb5804037291f81c75cd48326ac29f076e6b27198ea1d39f36 \
-    --hash=sha256:eb7b4b1ba2fcca82d65e380acf524a90c5589c25e919b502fb5b686ad4cb3c68
+safir==4.1.0 \
+    --hash=sha256:3e079ab2826e729ce47c91d1c74a200ce145ea96fb8f578aaead6c67ebb96c5b \
+    --hash=sha256:781c5b63b1ab585522291317a2f56e335ca70e95fe958a07686c7df4329e9e3f
     # via -r requirements/main.in
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
